@@ -1,0 +1,92 @@
+.loginCard
+{
+    width: 100%;
+    max-width: 360px;
+    position: fixed;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+}
+
+.loginTitle
+{
+    font-size: 32px;
+    font-weight: 700;
+    color: black;
+    margin-bottom: -2px;
+}
+
+.loginSubtitle
+{
+    font-size: 14px;
+    color: var(--text-description);
+    margin-bottom: 30px;
+}
+
+.loginFormGroup
+{
+    margin-bottom: 12px;
+}
+
+.loginFormGroup label
+{
+    display: block;
+    font-size: 12px;
+    color: #7d7d7d;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.loginFormGroup input
+{
+    width: 100%;
+    height: 40px;
+    padding: 12px; /*padding 세팅 조절*/
+    border: 1px solid var(--border-color);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.loginFormGroup input:focus
+{
+    border-color: #111;
+}
+
+.loginFormGroup input::placeholder
+{
+    color:#AAAAAA;
+    opacity: 1;
+}
+
+.btn
+{
+    width:100%;
+    height: 40px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    border: none;
+}
+
+.btn:hover
+{
+    opacity: 0.85;
+}
+
+.btnLogin
+{
+  background-color: #000000;
+  color: #ffffff;
+  margin-bottom: 8px;
+  margin-top: 15px;
+}
+
+.btnRegister
+{
+  margin-top: 20px;  
+  background-color: #000000;
+  color: #ffffff;
+}
