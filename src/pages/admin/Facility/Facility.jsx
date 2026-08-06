@@ -66,6 +66,23 @@ export default function Facility() {
               const worksheet = workbook.Sheets[firstSheetName];
               const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
+              const errors = [];
+              const isEmpty = (val) => val === undefined || val === null || String(val).trim() === '';
+              for (let i = 0; i < jsonData.length; i++) {
+                  const row = jsonData[i];
+                  const rownum = i + 2;
+                  if (isEmpty(row['명칭']))
+                        errors.push("엑셀 "+ rownum +"행 명칭");
+                  if (isEmpty(row['상세 설명']))
+                        errors.push("엑셀 "+ rownum +"행 상세 설명");
+                }
+
+                if (errors.length > 0)
+                  {
+                    alert("다음 항목의 값들이 비어있습니다. 채워주세요.\n- " + errors.join("\n- "));
+                    return;
+                  }
+
               const trans = jsonData.map((row) =>
                     axios.post('/api/facilities',
                       {
