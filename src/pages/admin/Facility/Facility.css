@@ -2,6 +2,7 @@
   padding: 32px 40px;
   width: 100%;
   box-sizing: border-box;
+  position: relative;
 }
 
 .Header{
@@ -145,4 +146,121 @@
 .no_data{
   padding: 40px 0;
   color: #888888;
+}
+
+.facility_sidebar{
+  position : absolute;
+  top: 0px;
+  right: 0px;
+  width: 320px;
+  height: 100%;
+  background-color: #f5f5f5;
+  border-left: 1px solid var(--border-color);
+  padding: 25px;
+  margin-right: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar_header{
+  margin-bottom: 32px;
+}
+
+.sidebar_btn{
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  color: black;
+  margin-bottom: 12px;
+}
+
+.close_btn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  color: black;
+  margin-left: -10px;
+  margin-bottom: 25px;
+}
+
+.sidebar_title{
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+  color: black;
+}
+
+.sidebar_subtitle{
+  font-size: 13px;
+  color: var(--text-description);
+  margin: 0;
+}
+
+.sidebar_form{
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form_label{
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-description);
+}
+
+.required{
+  color: red;
+  margin-left: 2px;
+}
+
+.form_input{
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 12px;
+  border: 1px solid var(--border-color);
+  background-color: #ffffff;
+  outline: none;
+}
+
+.form_input::placeholder{
+  color: var(--text-description);
+}
+
+.form_input:focus{
+  border-color: #202020;
+}
+
+.sidebar_button_group{
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.btn_submit{
+  background-color: #00b074;
+  color: #ffffff;
+  border: none;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn_cancel{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 20px;
+  background-color: #b71c1c;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
 }

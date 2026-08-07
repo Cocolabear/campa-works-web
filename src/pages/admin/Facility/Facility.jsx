@@ -11,6 +11,8 @@ export default function Facility() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const fileInputRef = useRef(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [formData, setFormData] = useState({name: '',description: ''});
 
     useEffect(() => {
     const fetchFacilities = async () => {
@@ -117,7 +119,32 @@ export default function Facility() {
         reader.readAsArrayBuffer(file);
     };
 
-  if (loading)
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({...prevData,[name]: value}));
+    };
+
+    const handleFormSubmit = async (e) => {
+        e.preventDefault();
+        if (!formData.name.trim()) {
+            alert('명칭을 입력해주세요.');
+            return;
+        }
+        
+        try {
+            await axios.post('/api/facilities',formData);
+            alert('시설이 성공적으로 등록되었습니다.');
+            setFormData({name: '',description: ''});
+            setIsSidebarOpen(false);
+            const refreshed = await axios.get('/api/facilities');
+            setFacilityList(refreshed.data);
+        } catch (error) {
+            console.error('시설 등록 실패:', error);
+            alert('시설 등록 실패 ' + (error.response?.data?.detail || '통신 오류'));
+        }
+    };
+
+    if (loading)
       {
         return <div className="Container">로딩 중...</div>;
       }
@@ -140,7 +167,7 @@ export default function Facility() {
                   <span className="btn_icon">+</span>
                   시설 다중 등록
                 </button>
-                <button type="button" className="btn">
+                <button type="button" className="btn" onClick={() => setIsSidebarOpen(true)}>
                   <span className="btn_icon">+</span>
                   시설 등록
                 </button>
@@ -185,6 +212,52 @@ export default function Facility() {
               </tbody>
             </table>
           </div>
-        </div>
+
+        {isSidebarOpen && (
+          <div className="facility_sidebar">
+            <div className="sidebar_header">
+              <button type="button" className="close_btn" onClick={() => setIsSidebarOpen(false)}>
+                ◀
+              </button>
+              <h2 className="sidebar_title">시설 등록</h2>
+              <p className="sidebar_subtitle">시설 등록을 위한 정보를 입력해주세요.</p>
+            </div>
+            <form className="sidebar_form" onSubmit={handleFormSubmit}>
+              <div className="form_group">
+                <label className="form_label">명칭<span className="required">*</span></label>
+                <input
+                  type="text"
+                  name="name"
+                  className="form_input"
+                  placeholder="명칭을 입력하세요."
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  />
+              </div>
+              
+              <div className="form_group">
+                <label className="form_label">상세 설명</label>
+                <input
+                  type="text"
+                  name="description"
+                  className="form_input"
+                  placeholder="상세 설명을 입력하세요."
+                  value={formData.description}
+                  onChange={handleInputChange}
+                />
+              </div>
+
+              <div className="sidebar_button_group">
+                <button type="submit" className="btn btn_submit">
+                  ✓ 생성
+                </button>
+                <button type="button" className="btn btn_cancel" onClick={() => setIsSidebarOpen(false)}>
+                  ✕ 취소
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+    </div>
     );
 }
