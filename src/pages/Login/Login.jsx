@@ -26,10 +26,23 @@ export default function Login()
                     return;
                 }
 
+                sessionStorage.setItem('userRole', user.role);
+                
+
                 if (user.role === 'ADMIN')
                     navigate('/dashboard');
                 else if (user.role === 'PROFESSOR')
-                    navigate('/professor/settings');
+                    {
+                        const Profdata=await axios.get('/api/professors');
+                        const ProInfo=Profdata.data.find((p)=>p.user?.id === user.id);
+                        sessionStorage.setItem('professorId', ProInfo.id);
+
+                        if(ProInfo)
+                        {
+                            sessionStorage.setItem('professorId', ProInfo.id);
+                            navigate('/professor/setting');
+                        }
+                    }
 
             }
             
