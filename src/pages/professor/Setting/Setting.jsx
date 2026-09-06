@@ -13,6 +13,9 @@ export default function Setting() {
   const [position, setPosition] = useState('PROFESSOR');
   const [isEdit, setIsEdit] = useState(false);
   const [initialData, setInitialData] = useState(null);
+  const [quotas, setQuotas] = useState([]);
+  const [firstQuota, setFirstQuota] = useState('');
+  const [secondQuota, setSecondQuota] = useState('');
 
   const professorId = sessionStorage.getItem('professorId');
 
@@ -20,15 +23,23 @@ export default function Setting() {
     const fetchData = async () => {
       try
       {
-        const response = await axios.get('/api/professors/'+professorId);
-        const data = response.data;
+        const Profres = await axios.get('/api/professors/'+professorId);
+        const Quotares = await axios.get('/api/professor-quotas?professor_id='+professorId);
+        const data = Profres.data;
+        const quotasData = Quotares.data;
 
-        setName(data.user?.name||'');
+        setName(data.user?.username||'');
         setEmail(data.user?.email||'');
         setPassword(data.password||'');
         setOffice(data.office||'');
         setResearch(data.research_field||'');
         setTel(data.tel||'');
+        setQuotas(quotasData);
+        const Q1 = quotasData.find((q) => q.semester?.id === 1)?.quota_value ?? 0;
+        const Q2 = quotasData.find((q) => q.semester?.id === 2)?.quota_value ?? 0;
+
+        setFirstQuota(Q1);
+        setSecondQuota(Q2);
 
         if(data.position) setPosition(data.position);
       }
@@ -61,16 +72,31 @@ export default function Setting() {
           position,
           ...(password && {password})
         });
+
+      const firstQuotaData = quotas.find((q) => q.semester?.id === 1);
+      const secondQuotaData = quotas.find((q) => q.semester?.id === 2);
+
+      await axios.patch('/api/professor-quotas/'+firstQuotaData?.id, 
+        {
+          quota_value: firstQuota,
+        });
+
+      await axios.patch('/api/professor-quotas/'+secondQuotaData?.id,
+        {
+          quota_value: secondQuota,
+        });
+
       alert('정보가 성공적으로 업데이트되었습니다.');
       setIsEdit(false);
       setPassword('');
 
-      setInitialData((prev) => ({...prev, office, research_field: research, tel}));
+      setInitialData((prev) => ({...prev, office, research_field: research, tel, firstQuota, secondQuota}));
     }
 
     catch (error)
     {
       console.error('Update professor error:', error);
+      console.error('서버 응답:', error.response?.data);
       alert('정보 수정 중 오류가 발생했습니다.');
     }
   };
@@ -81,6 +107,8 @@ export default function Setting() {
       setOffice(initialData.office||'');
       setResearch(initialData.research_field||'');
       setTel(initialData.tel||'');
+      setFirstQuota(initialData.firstQuota || '');
+      setSecondQuota(initialData.secondQuota || '');
     }
     setPassword('');
     setIsEdit(false);
@@ -166,6 +194,32 @@ export default function Setting() {
             onChange={(e) => setTel(e.target.value)}
             disabled={!isEdit}
           />
+        </div>
+
+        <div className="setting_form_group">
+            <label>담당 시수</label>
+            <div className="quota_container">
+                <div className="quota_input_group">
+                    <span className="quota_label">1학기 - </span>
+                    <input
+                        type="number"
+                        className="setting_input quota_input"
+                        value={firstQuota}
+                        onChange={(e) => setFirstQuota(Number(e.target.value))}
+                        disabled={!isEdit}
+                    />
+                </div>
+                <div className="quota_input_group">
+                    <span className="quota_label">2학기 -</span>
+                    <input
+                        type="number"
+                        className="setting_input quota_input"
+                        value={secondQuota}
+                        onChange={(e) => setSecondQuota(Number(e.target.value))}
+                        disabled={!isEdit}
+                    />
+                </div>
+            </div>
         </div>
 
         <div className="radio_group">
