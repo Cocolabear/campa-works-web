@@ -4,7 +4,7 @@ import './Login.css';
 import axios from "axios";
 
 
-export default function Login() 
+export default function Login({setUserRole}) 
 {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -27,6 +27,7 @@ export default function Login()
                 }
 
                 sessionStorage.setItem('userRole', user.role);
+                setUserRole(user.role);
                 
 
                 if (user.role === 'ADMIN')
@@ -35,7 +36,6 @@ export default function Login()
                     {
                         const Profdata=await axios.get('/api/professors');
                         const ProInfo=Profdata.data.find((p)=>p.user?.id === user.id);
-                        sessionStorage.setItem('professorId', ProInfo.id);
 
                         if(ProInfo)
                         {

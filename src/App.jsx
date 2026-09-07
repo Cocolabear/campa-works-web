@@ -1,7 +1,8 @@
 import './App.css';
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'; 
 import Login from './pages/Login/Login';
-import Register from './pages/admin/Register/Registrer';
+import Register from './pages/admin/Register/Register';
 import Dashboard from './pages/admin/Dashboard/Dashboard';
 import Layout from './component/Layout/Layout';
 import DashboardDetail from './pages/admin/DashboardDetail/DashboardDetail';
@@ -16,12 +17,12 @@ import Setting from './pages/professor/Setting/Setting';
 
 
 function App() {
-  const userRole = sessionStorage.getItem('userRole') || 'PROFESSOR';
+  const [userRole, setUserRole] = useState(() => sessionStorage.getItem('userRole') || 'PROFESSOR');
   return (
     <BrowserRouter>
       <Routes>
-          <Route path="/" element={<Navigate to="/login" />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<Login setUserRole={setUserRole} />} />
 
           <Route element={<Layout userRole={userRole} />}>
             <Route path="/register" element={<Register />}/>
