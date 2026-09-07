@@ -11,6 +11,7 @@ export default function Course() {
   const [loading, setLoading] = useState(true);
   const fileInputRef = useRef(null);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [courseData, setCourseData] = useState([]);
 
   const handleSort = (key) => {
     setSortConfig((prev) => ({key, direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'}));
@@ -21,6 +22,9 @@ export default function Course() {
         try {
                 const response = await axios.get('/api/master-courses');
                 setCourseList(response.data);
+
+                const CourseRes=await axios.get('/api/courses');
+                setCourseData(CourseRes.data);
             } catch (error) {
                 console.error('Error fetching courses:', error);
             } finally {
@@ -32,13 +36,26 @@ export default function Course() {
 
 
     const filteredCourses = courseList.filter(
-        (course) => course.name?.toLowerCase().includes(searchTerm.toLowerCase()) || course.course_code?.toLowerCase().includes(searchTerm.toLowerCase()));
+        (course) => course.course_name?.toLowerCase().includes(searchTerm.toLowerCase()) || course.course_code?.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const sortedCourses = [...filteredCourses].sort((a, b) => {
         if (!sortConfig.key) return 0;
 
-        const aValue = a[sortConfig.key] ?? '';
-        const bValue = b[sortConfig.key] ?? '';
+        let aValue
+        let bValue;
+
+        if (['credit', 'lecture', 'practice'].includes(sortConfig.key))
+            {
+                const aCourseInfo = courseData.find((c) => c.master_course?.id === a.id);
+                const bCourseInfo = courseData.find((c) => c.master_course?.id === b.id);
+                aValue = aCourseInfo?.[sortConfig.key] ?? 0;
+                bValue = bCourseInfo?.[sortConfig.key] ?? 0;
+            }
+        else
+            {
+                aValue = a[sortConfig.key];
+                bValue = b[sortConfig.key];
+            }
 
         if (typeof aValue === 'boolean')
             return sortConfig.direction === 'asc' ? (aValue === bValue ? 0 : aValue ? -1 : 1) : (aValue === bValue ? 0 : aValue ? 1 : -1);
@@ -52,6 +69,7 @@ export default function Course() {
             {
                 '과목코드': '예시 과목코드',
                 '과목명': '예시 과목명',
+                '과목명(영어)': '예시 과목명(영어)',
                 '학점': '예시 학점',
                 '이론': '예시 이론',
                 '실습': '예시 실습',
@@ -61,7 +79,7 @@ export default function Course() {
         ];
 
         const worksheet = XLSX.utils.json_to_sheet(templateData);
-        worksheet['!cols'] = [{ wch: 15 }, { wch: 20 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 15 }];
+        worksheet['!cols'] = [{ wch: 15 }, { wch: 20 }, { wch: 15 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 15 }, { wch: 10 }];
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, '과목등록양식');
         XLSX.writeFile(workbook, '과목_등록_기본_양식.xlsx');
@@ -93,7 +111,7 @@ export default function Course() {
                         row['학점'] === '예시 학점' && 
                         row['이론'] === '예시 이론' && 
                         row['실습'] === '예시 실습' && 
-                        row['대학/대학원'] === '대학 or 대학원'
+                        row['학부/대학원'] === '학부 or 대학원'
                     )
                 );
                 if (jsonData.length === 0) {
@@ -116,6 +134,8 @@ export default function Course() {
                         errors.push("엑셀 "+ rownum +"행 이론");
                     if (isEmpty(row['실습']))
                         errors.push("엑셀 "+ rownum +"행 실습");
+                    if (isEmpty(row['학기']))
+                        errors.push("엑셀 "+ rownum +"행 학기");
                 }
 
                 if (errors.length > 0)
@@ -125,13 +145,13 @@ export default function Course() {
                     }
 
                 const trans = jsonData.map((row) => {
-                    const rawType = row['대학/대학원'] || '';
+                    const rawType = row['학부/대학원'] || '';
                     const courseType = rawType.includes('대학원') ? 'GRADUATE' : 'UNDERGRADUATE';
                     const isCoreValue = String(row['is_core'] || '').trim().toUpperCase() === 'Y';
 
                     return axios.post('/api/master-courses', {
-                        course_code: (row['과목코드'] || ''),
-                        name: (row['과목명'] || ''),
+                        course_code: String(row['과목코드'] || ''),
+                        course_name: (row['과목명'] || ''),
                         credit: (row['학점']) || 0,
                         lecture: (row['이론']) || 0,
                         practice: (row['실습']) || 0,
@@ -147,7 +167,7 @@ export default function Course() {
                 const FailCnt = connected.filter(result => result.status === 'rejected').length;
                 
                 if (FailCnt > 0) {
-                    alert("엑셀 등록 성공 " + SuccessCnt + "건, 실패 " + FailCnt + "건 (중복된 과목 코드)");
+                    alert("엑셀 등록 성공 " + SuccessCnt + "건, 실패 " + FailCnt + "건");
                 } else {
                     alert("엑셀 등록 성공 " + SuccessCnt + "건 처리 완료");
                 }
@@ -204,8 +224,8 @@ export default function Course() {
                 <thead>
                     <tr>
                         <th style={{ width: "5%" }}>#</th>
-                        <th style={{ width: "17%", cursor: "pointer" }} onClick={() => handleSort('name')}>
-                            과목명 {sortConfig.key === 'name' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
+                        <th style={{ width: "17%", cursor: "pointer" }} onClick={() => handleSort('course_name')}>
+                            과목명 {sortConfig.key === 'course_name' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
                         </th>
                         <th style={{ width: "10%", cursor: "pointer" }} onClick={() => handleSort('course_code')}>
                             과목코드 {sortConfig.key === 'course_code' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
@@ -234,20 +254,24 @@ export default function Course() {
                     </tr>
                 </thead>
                 <tbody>
-                    {sortedCourses.map((course, index) => (
+                    {sortedCourses.map((course, index) => {
+                        const courseInfo= courseData.find((c) => c.master_course?.id === course.id);
+
+                        return(
                         <tr key={course.id || index}>
                             <td className="col_id">{String(index + 1).padStart(3, '0')}</td>
-                            <td className="col_name">{course.name}</td>
-                            <td className="bcourse_code">{course.course_code || '-'}</td>
+                            <td className="col_name">{course.course_name}</td>
+                            <td className="course_code">{course.course_code || '-'}</td>
                             <td>{course.curriculum?.major?.name || '-'}</td>
                             <td>{course.curriculum?.semester?.name || (course.semester ? `${course.semester}학기` : '-')}</td>
-                            <td>{course.credit ?? 0}</td>
-                            <td>{course.lecture ?? 0}</td>
-                            <td>{course.practice ?? 0}</td>
+                            <td>{courseInfo?.credit ?? 0}</td>
+                            <td>{courseInfo?.lecture ?? 0}</td>
+                            <td>{courseInfo?.practice ?? 0}</td>
                             <td>{course.course_type === 'GRADUATE' ? '대학원' : course.course_type === 'UNDERGRADUATE' ? '대학' : '-'}</td>
                             <td style={{color: 'green'}}>{course.is_core ? '✔' : ' '}</td>
                         </tr>
-                    ))}
+                        );
+                    })}
                 </tbody>
                 </table>
             </div>
