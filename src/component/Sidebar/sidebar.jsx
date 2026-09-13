@@ -19,7 +19,7 @@ const menuItems = {
     { name: '과목 관리', path: '/mastercourse', icon: courseIcon },
   //{ name: '전공 관리', path: '/majors', icon: majorIcon },
     { name: '강의실 관리', path: '/lectureroom', icon: classroomIcon },
-    { name: '시간표 관리', path: '/schedules', icon: scheduleIcon },
+    { name: '시간표 관리', path: '/timetable', icon: scheduleIcon },
     { name: '출장 신청 관리', path: '/business-trips', icon: businessTripIcon },
     { name: '교수 현황', path: '/professor', icon: professorIcon },
   ],

@@ -1,7 +1,7 @@
 import './App.css';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'; 
 import Login from './pages/Login/Login';
-import Register from './pages/admin/Register/Registrer';
+import Register from './pages/admin/Register/Register';
 import Dashboard from './pages/admin/Dashboard/Dashboard';
 import Layout from './component/Layout/Layout';
 import DashboardDetail from './pages/admin/DashboardDetail/DashboardDetail';
@@ -10,6 +10,7 @@ import Lectureroom from './pages/admin/Lectureroom/Lectureroom';
 import Facility from './pages/admin/Facility/Facility';
 import Professor from './pages/admin/Professor/Professor';
 import Setting from './pages/professor/Setting/Setting';
+import Timetable from './pages/admin/Timetable/Timetable';
 //import Header from './component/Header/Header';
 //import Sidebar from './component/Sidebar/sidebar';
 
@@ -31,6 +32,7 @@ function App() {
             <Route path="/lectureroom" element={<Lectureroom/>}/>
             <Route path="/facility" element={<Facility/>}/>
             <Route path="/professor" element={<Professor/>}/>
+            <Route path="/timetable" element={<Timetable/>}/>
 
             <Route path="/professor/setting" element={<Setting/>}/>
             {/* <Route path="/Header" element={<Header/>}/> */}
