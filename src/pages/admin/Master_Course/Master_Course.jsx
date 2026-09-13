@@ -12,6 +12,7 @@ export default function Course() {
   const fileInputRef = useRef(null);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [courseData, setCourseData] = useState([]);
+  const [courseCurriculum, setCourseCurriculum] = useState([]);
 
   const handleSort = (key) => {
     setSortConfig((prev) => ({key, direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'}));
@@ -25,6 +26,10 @@ export default function Course() {
 
                 const CourseRes=await axios.get('/api/courses');
                 setCourseData(CourseRes.data);
+
+                const CCuriRes=await axios.get('/api/course-curriculums');
+                setCourseCurriculum(CCuriRes.data);
+
             } catch (error) {
                 console.error('Error fetching courses:', error);
             } finally {
@@ -51,6 +56,27 @@ export default function Course() {
                 aValue = aCourseInfo?.[sortConfig.key] ?? 0;
                 bValue = bCourseInfo?.[sortConfig.key] ?? 0;
             }
+
+        else if (sortConfig.key === 'semester' || sortConfig.key === 'major')
+            {
+                const aCC = courseCurriculum.find((cc) => cc.master_course_id?.id === a.id);
+                const bCC = courseCurriculum.find((cc) => cc.master_course_id?.id === b.id);
+
+                if (sortConfig.key === 'major')
+                    {
+                        aValue = aCC?.curriculum?.major?.major_name ?? '';
+                        bValue = bCC?.curriculum?.major?.major_name ?? '';
+                    }
+                else
+                    {
+                        const aSemester = aCC?.curriculum?.semester;
+                        const bSemester = bCC?.curriculum?.semester;
+
+                        aValue = (aSemester?.year ?? '') + (aSemester?.semester_ ?? '');
+                        bValue = (bSemester?.year ?? '') + (bSemester?.semester_ ?? '');
+                    }
+            }
+
         else
             {
                 aValue = a[sortConfig.key];
@@ -256,18 +282,22 @@ export default function Course() {
                 <tbody>
                     {sortedCourses.map((course, index) => {
                         const courseInfo= courseData.find((c) => c.master_course?.id === course.id);
+                        const courseCurriInfo= courseCurriculum.find((cc) => cc.master_course_id?.id === course.id || cc.master_course?.id === course.id);
+                        const semesterInfo = courseCurriInfo?.curriculum?.semester;
+                        const majorInfo = courseCurriInfo?.curriculum?.major?.major_name ?? '-';
+                        const semesterText = semesterInfo ? semesterInfo.semester_ === 'FIRST' ? '1학기' : semesterInfo.semester === 'SECOND' ? '2학기' : semesterInfo.semester === 'SUMMER' ? '여름학기' : semesterInfo.semester === 'WINTER' ? '겨울학기' : '' : '-';
 
                         return(
                         <tr key={course.id || index}>
                             <td className="col_id">{String(index + 1).padStart(3, '0')}</td>
                             <td className="col_name">{course.course_name}</td>
                             <td className="course_code">{course.course_code || '-'}</td>
-                            <td>{course.curriculum?.major?.name || '-'}</td>
-                            <td>{course.curriculum?.semester?.name || (course.semester ? `${course.semester}학기` : '-')}</td>
+                            <td>{majorInfo}</td>
+                            <td>{semesterText}</td>
                             <td>{courseInfo?.credit ?? 0}</td>
                             <td>{courseInfo?.lecture ?? 0}</td>
                             <td>{courseInfo?.practice ?? 0}</td>
-                            <td>{course.course_type === 'GRADUATE' ? '대학원' : course.course_type === 'UNDERGRADUATE' ? '대학' : '-'}</td>
+                            <td>{course.course_type === 'GRADUATE' ? '대학원' : course.course_type === 'UNDERGRADUATE' ? '학부' : '-'}</td>
                             <td style={{color: 'green'}}>{course.is_core ? '✔' : ' '}</td>
                         </tr>
                         );
